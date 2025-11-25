@@ -725,27 +725,55 @@ function stopSound() {
                 toneSynth._isPlaying = false;
             }
         } else {
-            // Останавливаем Web Audio API
-            if (oscillator) {
-                oscillator.stop();
-                oscillator = null;
+            // Останавливаем Web Audio API с плавным затуханием
+            const fadeOutTime = 0.05; // 50ms для плавного затухания
+            const now = audioContext.currentTime;
+
+            // Плавно уменьшаем громкость до почти нуля
+            if (gainNode) {
+                gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, now + fadeOutTime);
             }
 
-            if (vibratoOsc) {
-                vibratoOsc.stop();
-                vibratoOsc = null;
-                vibratoGain = null;
-            }
+            // Останавливаем осцилляторы после затухания
+            setTimeout(() => {
+                if (oscillator) {
+                    try {
+                        oscillator.stop();
+                    } catch (e) {
+                        // Осциллятор уже остановлен
+                    }
+                    oscillator = null;
+                }
 
-            if (noiseNode) {
-                noiseNode.stop();
-                noiseNode = null;
-            }
+                if (vibratoOsc) {
+                    try {
+                        vibratoOsc.stop();
+                    } catch (e) {
+                        // Осциллятор уже остановлен
+                    }
+                    vibratoOsc = null;
+                    vibratoGain = null;
+                }
 
-            oscillators.forEach(item => {
-                item.osc.stop();
-            });
-            oscillators = [];
+                if (noiseNode) {
+                    try {
+                        noiseNode.stop();
+                    } catch (e) {
+                        // Узел уже остановлен
+                    }
+                    noiseNode = null;
+                }
+
+                oscillators.forEach(item => {
+                    try {
+                        item.osc.stop();
+                    } catch (e) {
+                        // Осциллятор уже остановлен
+                    }
+                });
+                oscillators = [];
+            }, fadeOutTime * 1000 + 10); // +10ms для надежности
         }
 
         isAudioPlaying = false;
@@ -972,19 +1000,20 @@ async function playNote(frequency, duration) {
                 vibrato.connect(vibratoGainNode);
                 vibratoGainNode.connect(osc.frequency);
 
-                // Envelope для терменвокса
-                noteGain.gain.setValueAtTime(0, audioContext.currentTime);
-                noteGain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.02);
-                noteGain.gain.linearRampToValueAtTime(0.28, audioContext.currentTime + duration / 1000 - 0.03);
-                noteGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration / 1000);
+                // Envelope для терменвокса с плавным затуханием
+                const releaseTime = 0.05; // 50ms для плавного затухания
+                noteGain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+                noteGain.gain.exponentialRampToValueAtTime(0.3, audioContext.currentTime + 0.02);
+                noteGain.gain.exponentialRampToValueAtTime(0.28, audioContext.currentTime + duration / 1000 - releaseTime);
+                noteGain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration / 1000);
 
                 osc.connect(noteGain);
                 noteGain.connect(audioContext.destination);
 
                 vibrato.start(audioContext.currentTime);
-                vibrato.stop(audioContext.currentTime + duration / 1000);
+                vibrato.stop(audioContext.currentTime + duration / 1000 + releaseTime);
                 osc.start(audioContext.currentTime);
-                osc.stop(audioContext.currentTime + duration / 1000);
+                osc.stop(audioContext.currentTime + duration / 1000 + releaseTime);
             } else {
                 // Обработка инструментов Web Audio API
                 let additionalNodes = [];
@@ -1009,7 +1038,8 @@ async function playNote(frequency, duration) {
                         vibrato2.connect(vibratoGain2);
                         vibratoGain2.connect(osc.frequency);
                         vibrato2.start(audioContext.currentTime);
-                        vibrato2.stop(audioContext.currentTime + duration / 1000);
+                        // Останавливаем vibrato после release time
+                        additionalNodes.push({ node: vibrato2, stopTime: audioContext.currentTime + duration / 1000 + 0.05 });
                         break;
 
                     case 'flute3':
@@ -1069,17 +1099,23 @@ async function playNote(frequency, duration) {
                         osc.frequency.value = frequency;
                 }
 
-                // Envelope для более естественного звука
-                noteGain.gain.setValueAtTime(0, audioContext.currentTime);
-                noteGain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01); // Attack
-                noteGain.gain.linearRampToValueAtTime(0.25, audioContext.currentTime + duration / 1000 - 0.05); // Sustain
-                noteGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration / 1000); // Release
+                // Envelope для более естественного звука с плавным затуханием
+                const releaseTime = 0.05; // 50ms для плавного затухания
+                noteGain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+                noteGain.gain.exponentialRampToValueAtTime(0.3, audioContext.currentTime + 0.01); // Attack
+                noteGain.gain.exponentialRampToValueAtTime(0.25, audioContext.currentTime + duration / 1000 - releaseTime); // Sustain
+                noteGain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration / 1000); // Release
 
                 osc.connect(noteGain);
                 noteGain.connect(audioContext.destination);
 
                 osc.start(audioContext.currentTime);
-                osc.stop(audioContext.currentTime + duration / 1000);
+                osc.stop(audioContext.currentTime + duration / 1000 + releaseTime);
+
+                // Останавливаем дополнительные ноды (например, vibrato)
+                additionalNodes.forEach(item => {
+                    item.node.stop(item.stopTime);
+                });
             }
         } catch (e) {
             console.error('Web Audio error:', e);
