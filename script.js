@@ -1515,36 +1515,66 @@ const hands = new Hands({
     }
 });
 
+// Определение мобильного устройства
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+// Оптимизация настроек для мобильных устройств
 hands.setOptions({
     maxNumHands: 1,
-    modelComplexity: 1,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5
+    modelComplexity: isMobile ? 0 : 1, // Легкая модель для мобильных
+    minDetectionConfidence: isMobile ? 0.6 : 0.5,
+    minTrackingConfidence: isMobile ? 0.6 : 0.5
 });
 
 hands.onResults(onResults);
 
+// Функция для показа ошибок на экране
+function showError(message, error = null) {
+    statusElement.textContent = message;
+    statusElement.style.background = 'rgba(220, 38, 38, 0.8)';
+    statusElement.style.fontSize = '11px';
+    statusElement.style.padding = '10px 15px';
+    statusElement.style.maxWidth = '90%';
+    statusElement.style.wordWrap = 'break-word';
+    if (error) {
+        console.error(message, error);
+        // Добавляем детали ошибки в debug info
+        if (pinchStatusElement) {
+            pinchStatusElement.textContent = error.toString();
+            pinchStatusElement.style.color = '#ef4444';
+        }
+    }
+}
+
 // Проверка поддержки getUserMedia
 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    statusElement.textContent = '❌ Камера недоступна. Требуется HTTPS соединение для доступа к камере!';
-    statusElement.style.background = 'rgba(220, 38, 38, 0.8)';
-    statusElement.style.fontSize = '12px';
-    statusElement.style.padding = '10px 20px';
-    console.error('getUserMedia не поддерживается. Возможно, используется HTTP вместо HTTPS.');
+    showError('❌ Камера недоступна. Требуется HTTPS соединение для доступа к камере!');
 } else {
+    // Разрешение камеры (меньше для мобильных)
+    const cameraWidth = isMobile ? 480 : 640;
+    const cameraHeight = isMobile ? 360 : 480;
+
+    statusElement.textContent = isMobile ? '📱 Загрузка (мобильный режим)...' : '💻 Загрузка...';
+
     // Инициализация камеры
     const camera = new Camera(videoElement, {
         onFrame: async () => {
-            await hands.send({ image: videoElement });
+            try {
+                await hands.send({ image: videoElement });
+            } catch (error) {
+                showError('❌ Ошибка обработки кадра: ' + error.message, error);
+            }
         },
-        width: 640,
-        height: 480
+        width: cameraWidth,
+        height: cameraHeight,
+        facingMode: isMobile ? 'environment' : 'user' // Задняя камера на мобильных
     });
 
     // Запуск камеры
     camera.start().then(() => {
-        statusElement.textContent = '📹 Камера активна. Покажите руку!';
+        statusElement.textContent = isMobile ? '📱 Камера активна. Покажите руку!' : '📹 Камера активна. Покажите руку!';
         statusElement.className = 'active';
+        console.log('Camera started successfully. Resolution:', cameraWidth, 'x', cameraHeight);
     }).catch((error) => {
         let errorMsg = '❌ Ошибка доступа к камере: ' + error.message;
 
@@ -1553,14 +1583,12 @@ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             errorMsg = '❌ Доступ к камере запрещён. Разрешите доступ в настройках браузера.';
         } else if (error.name === 'NotFoundError') {
             errorMsg = '❌ Камера не найдена. Подключите камеру и обновите страницу.';
+        } else if (error.name === 'OverconstrainedError') {
+            errorMsg = '❌ Камера не поддерживает требуемые параметры. Попробуйте другую камеру.';
         } else if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
             errorMsg = '❌ Требуется HTTPS! Камера не работает через HTTP. Используйте https://' + window.location.hostname;
         }
 
-        statusElement.textContent = errorMsg;
-        statusElement.style.background = 'rgba(220, 38, 38, 0.8)';
-        statusElement.style.fontSize = '11px';
-        statusElement.style.padding = '10px 15px';
-        console.error('Camera error:', error);
+        showError(errorMsg, error);
     });
 }
