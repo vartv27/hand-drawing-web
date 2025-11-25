@@ -298,6 +298,11 @@ function startSound(frequency, volume) {
     if (!isAudioPlaying) {
         oscillators = []; // Очищаем массив
 
+        // Сбрасываем громкость gainNode (после stopSound он остается на 0.0001)
+        if (gainNode) {
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        }
+
         if (currentInstrument === 'flute1') {
             // Флейта классическая - чистый синус
             oscillator = audioContext.createOscillator();
@@ -735,45 +740,43 @@ function stopSound() {
                 gainNode.gain.exponentialRampToValueAtTime(0.0001, now + fadeOutTime);
             }
 
-            // Останавливаем осцилляторы после затухания
-            setTimeout(() => {
-                if (oscillator) {
-                    try {
-                        oscillator.stop();
-                    } catch (e) {
-                        // Осциллятор уже остановлен
-                    }
-                    oscillator = null;
+            // Останавливаем осцилляторы СРАЗУ, но с запланированным временем остановки
+            if (oscillator) {
+                try {
+                    oscillator.stop(now + fadeOutTime);
+                } catch (e) {
+                    // Осциллятор уже остановлен
                 }
+                oscillator = null;
+            }
 
-                if (vibratoOsc) {
-                    try {
-                        vibratoOsc.stop();
-                    } catch (e) {
-                        // Осциллятор уже остановлен
-                    }
-                    vibratoOsc = null;
-                    vibratoGain = null;
+            if (vibratoOsc) {
+                try {
+                    vibratoOsc.stop(now + fadeOutTime);
+                } catch (e) {
+                    // Осциллятор уже остановлен
                 }
+                vibratoOsc = null;
+                vibratoGain = null;
+            }
 
-                if (noiseNode) {
-                    try {
-                        noiseNode.stop();
-                    } catch (e) {
-                        // Узел уже остановлен
-                    }
-                    noiseNode = null;
+            if (noiseNode) {
+                try {
+                    noiseNode.stop(now + fadeOutTime);
+                } catch (e) {
+                    // Узел уже остановлен
                 }
+                noiseNode = null;
+            }
 
-                oscillators.forEach(item => {
-                    try {
-                        item.osc.stop();
-                    } catch (e) {
-                        // Осциллятор уже остановлен
-                    }
-                });
-                oscillators = [];
-            }, fadeOutTime * 1000 + 10); // +10ms для надежности
+            oscillators.forEach(item => {
+                try {
+                    item.osc.stop(now + fadeOutTime);
+                } catch (e) {
+                    // Осциллятор уже остановлен
+                }
+            });
+            oscillators = [];
         }
 
         isAudioPlaying = false;
