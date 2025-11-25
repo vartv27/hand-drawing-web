@@ -1,3 +1,70 @@
+// Мобильная консоль для отладки
+(function() {
+    const mobileConsole = document.getElementById('mobileConsole');
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (!isMobileDevice) return; // Показываем только на мобильных
+
+    let logCount = 0;
+    const maxLogs = 50;
+
+    function addLog(message, type = 'log') {
+        if (!mobileConsole) return;
+
+        const logEntry = document.createElement('div');
+        logEntry.className = type;
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+
+        mobileConsole.appendChild(logEntry);
+        logCount++;
+
+        // Ограничиваем количество логов
+        if (logCount > maxLogs) {
+            mobileConsole.removeChild(mobileConsole.firstChild);
+            logCount--;
+        }
+
+        // Автоскролл вниз
+        mobileConsole.scrollTop = mobileConsole.scrollHeight;
+
+        // Показываем консоль
+        mobileConsole.classList.add('visible');
+    }
+
+    // Перехват console.log
+    const originalLog = console.log;
+    console.log = function(...args) {
+        originalLog.apply(console, args);
+        addLog(args.join(' '), 'log');
+    };
+
+    // Перехват console.error
+    const originalError = console.error;
+    console.error = function(...args) {
+        originalError.apply(console, args);
+        addLog('ERROR: ' + args.join(' '), 'error');
+    };
+
+    // Перехват console.warn
+    const originalWarn = console.warn;
+    console.warn = function(...args) {
+        originalWarn.apply(console, args);
+        addLog('WARN: ' + args.join(' '), 'warn');
+    };
+
+    // Перехват необработанных ошибок
+    window.addEventListener('error', function(e) {
+        addLog(`ERROR: ${e.message} at ${e.filename}:${e.lineno}`, 'error');
+    });
+
+    // Перехват необработанных промисов
+    window.addEventListener('unhandledrejection', function(e) {
+        addLog(`PROMISE ERROR: ${e.reason}`, 'error');
+    });
+
+    console.log('Mobile console initialized');
+})();
+
 // Элементы DOM
 const videoElement = document.getElementById('video');
 const drawingCanvas = document.getElementById('drawingCanvas');
