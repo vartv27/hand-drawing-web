@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рисование жестами руки</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <p class="instructions">
+            📹 Покажите руку | ✍️ Сомкните пальцы для рисования | ↔️ Влево-вправо: высота тона | ↕️ Вверх-вниз: громкость
+        </p>
+        
+        <div class="canvas-container">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="drawingCanvas"></canvas>
+            <canvas id="handCanvas"></canvas>
+        </div>
+        
+        <div class="controls">
+            <button id="clearBtn">🗑️ Очистить</button>
+            <button id="audioBtn">🔇 Выключить звук</button>
+            <label>
+                Мелодия:
+                <select id="melodySelect">
+                    <option value="scale">🎵 Гамма</option>
+                    <option value="melody1">🎼 Мелодия 1</option>
+                    <option value="melody2">🎶 Мелодия 2</option>
+                    <option value="melody3">🎹 Мелодия 3</option>
+                </select>
+            </label>
+            <button id="playSelectedBtn">▶️ Играть</button>
+            <label>
+                Инструмент:
+                <select id="instrumentSelect">
+                    <option value="flute1">🎵 Флейта классическая</option>
+                    <option value="flute2">🎶 Флейта с вибрато</option>
+                    <option value="flute3">🌬️ Флейта воздушная</option>
+                    <option value="panflute">🎐 Флейта Пана</option>
+                    <option value="recorder">📯 Блокфлейта</option>
+                    <option value="piano">🎹 Пианино</option>
+                    <option value="epiano">🎹 Электропиано</option>
+                    <option value="violin">🎻 Скрипка</option>
+                    <option value="cello">🎼 Виолончель</option>
+                    <option value="guitar">🎸 Гитара</option>
+                    <option value="eguitar">🎸 Электрогитара</option>
+                    <option value="bass">🎸 Бас-гитара</option>
+                    <option value="ukulele">🪕 Укулеле</option>
+                    <option value="clarinet">🎺 Кларнет</option>
+                    <option value="trumpet">🎺 Труба</option>
+                    <option value="saxophone">🎷 Саксофон</option>
+                    <option value="theremin">👋 Терменвокс</option>
+                    <option value="organ">🎹 Орган</option>
+                    <option value="xylophone">🎶 Ксилофон</option>
+                    <option value="glockenspiel">🔔 Глокеншпиль</option>
+                    <option value="vibraphone">🎶 Вибрафон</option>
+                    <option value="marimba">🎵 Маримба</option>
+                    <option value="bells">🔔 Колокольчики</option>
+                    <option value="harp">🪈 Арфа</option>
+                </select>
+            </label>
+            <label>
+                Цвет:
+                <input type="color" id="colorPicker" value="#ff0000">
+            </label>
+        </div>
+        
+        <div id="status">Инициализация камеры...</div>
+
+        <div id="debugInfo">
+            <div>Указательный: <span id="indexCoords">-</span></div>
+            <div>Большой: <span id="thumbCoords">-</span></div>
+            <div>Расстояние: <span id="distance">-</span></div>
+            <div>Размер руки: <span id="depth">-</span></div>
+            <div>Статус: <span id="pinchStatus">-</span></div>
+            <div>Звук: <span id="frequency">-</span></div>
+        </div>
+
+        <!-- Кнопки управления октавами жестами -->
+        <div id="octaveDownGesture" class="gesture-button left">
+            <div class="gesture-button-content">
+                <span class="gesture-icon">−</span>
+                <span class="gesture-text">Октава вниз</span>
+            </div>
+        </div>
+
+        <!-- Контролы октавы (обычные кнопки) -->
+        <div class="octave-controls">
+            <button id="octaveDown" class="octave-btn">−</button>
+            <div class="octave-display">
+                <span class="octave-label">Октава</span>
+                <span id="octaveValue">0</span>
+            </div>
+            <button id="octaveUp" class="octave-btn">+</button>
+        </div>
+
+        <div id="octaveUpGesture" class="gesture-button right">
+            <div class="gesture-button-content">
+                <span class="gesture-icon">+</span>
+                <span class="gesture-text">Октава вверх</span>
+            </div>
+        </div>
+
+        <!-- Клавиши пианино -->
+        <div id="piano">
+            <div class="piano-keys">
+                <!-- Октава будет генерироваться через JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Tone.js for realistic instrument samples -->
+    <script src="https://cdn.jsdelivr.net/npm/tone@latest/build/Tone.min.js"></script>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>
