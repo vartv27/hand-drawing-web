@@ -1624,13 +1624,19 @@ const hands = new Hands({
 // Определение мобильного устройства
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+console.log('Device type:', isMobile ? 'Mobile' : 'Desktop');
+console.log('User agent:', navigator.userAgent);
+
 // Оптимизация настроек для мобильных устройств
-hands.setOptions({
+const handsConfig = {
     maxNumHands: 1,
     modelComplexity: isMobile ? 0 : 1, // Легкая модель для мобильных
-    minDetectionConfidence: isMobile ? 0.6 : 0.5,
-    minTrackingConfidence: isMobile ? 0.6 : 0.5
-});
+    minDetectionConfidence: isMobile ? 0.5 : 0.5,
+    minTrackingConfidence: isMobile ? 0.5 : 0.5
+};
+
+console.log('MediaPipe Hands config:', handsConfig);
+hands.setOptions(handsConfig);
 
 hands.onResults(onResults);
 
@@ -1652,36 +1658,55 @@ function showError(message, error = null) {
     }
 }
 
-// Проверка поддержки getUserMedia
-if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showError('❌ Камера недоступна. Требуется HTTPS соединение для доступа к камере!');
-} else {
-    // Разрешение камеры (меньше для мобильных)
+// Переменные для управления камерой
+let camera = null;
+let currentFacingMode = isMobile ? 'environment' : 'user';
+const switchCameraBtn = document.getElementById('switchCameraBtn');
+
+// Показываем кнопку переключения камеры только на мобильных
+if (isMobile && switchCameraBtn) {
+    switchCameraBtn.style.display = 'inline-block';
+}
+
+// Функция для запуска камеры
+async function startCamera() {
     const cameraWidth = isMobile ? 480 : 640;
     const cameraHeight = isMobile ? 360 : 480;
 
-    statusElement.textContent = isMobile ? '📱 Загрузка (мобильный режим)...' : '💻 Загрузка...';
+    console.log('Starting camera...', { width: cameraWidth, height: cameraHeight, facingMode: currentFacingMode });
+    statusElement.textContent = isMobile ? '📱 Запуск камеры (мобильный режим)...' : '💻 Запуск камеры...';
 
-    // Инициализация камеры
-    const camera = new Camera(videoElement, {
-        onFrame: async () => {
-            try {
-                await hands.send({ image: videoElement });
-            } catch (error) {
-                showError('❌ Ошибка обработки кадра: ' + error.message, error);
-            }
-        },
-        width: cameraWidth,
-        height: cameraHeight,
-        facingMode: isMobile ? 'environment' : 'user' // Задняя камера на мобильных
-    });
+    try {
+        // Останавливаем существующую камеру если есть
+        if (camera) {
+            console.log('Stopping existing camera...');
+            camera.stop();
+        }
 
-    // Запуск камеры
-    camera.start().then(() => {
+        // Создаем новую камеру
+        camera = new Camera(videoElement, {
+            onFrame: async () => {
+                try {
+                    await hands.send({ image: videoElement });
+                } catch (error) {
+                    console.error('Frame processing error:', error);
+                    showError('❌ Ошибка обработки кадра: ' + error.message, error);
+                }
+            },
+            width: cameraWidth,
+            height: cameraHeight,
+            facingMode: currentFacingMode
+        });
+
+        console.log('Camera object created, starting...');
+        await camera.start();
+
+        console.log('Camera started successfully!');
         statusElement.textContent = isMobile ? '📱 Камера активна. Покажите руку!' : '📹 Камера активна. Покажите руку!';
         statusElement.className = 'active';
-        console.log('Camera started successfully. Resolution:', cameraWidth, 'x', cameraHeight);
-    }).catch((error) => {
+        statusElement.style.background = 'rgba(40, 167, 69, 0.8)';
+    } catch (error) {
+        console.error('Camera start error:', error);
         let errorMsg = '❌ Ошибка доступа к камере: ' + error.message;
 
         // Специальное сообщение для проблем с безопасностью
@@ -1696,5 +1721,24 @@ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         }
 
         showError(errorMsg, error);
+    }
+}
+
+// Переключение камеры
+if (switchCameraBtn) {
+    switchCameraBtn.addEventListener('click', async () => {
+        console.log('Switching camera...');
+        currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+        console.log('New facing mode:', currentFacingMode);
+        await startCamera();
     });
+}
+
+// Проверка поддержки getUserMedia
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    console.error('getUserMedia not supported!');
+    showError('❌ Камера недоступна. Требуется HTTPS соединение для доступа к камере!');
+} else {
+    console.log('getUserMedia supported, starting camera...');
+    startCamera();
 }
