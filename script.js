@@ -1325,6 +1325,181 @@ const melodies = {
             { note: 'A', octave: 3, duration: 'e' },
             { note: 'D', octave: 4, duration: 'q' },
         ]
+    },
+    twinkle: {
+        name: 'Маленькая звездочка (Twinkle Twinkle)',
+        tempo: 100,
+        notes: [
+            // Twinkle twinkle little star
+            { note: 'C', octave: 4, duration: 'q' },
+            { note: 'C', octave: 4, duration: 'q' },
+            { note: 'G', octave: 4, duration: 'q' },
+            { note: 'G', octave: 4, duration: 'q' },
+            { note: 'A', octave: 4, duration: 'q' },
+            { note: 'A', octave: 4, duration: 'q' },
+            { note: 'G', octave: 4, duration: 'h' },
+            // How I wonder what you are
+            { note: 'F', octave: 4, duration: 'q' },
+            { note: 'F', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'D', octave: 4, duration: 'q' },
+            { note: 'D', octave: 4, duration: 'q' },
+            { note: 'C', octave: 4, duration: 'h' },
+        ]
+    },
+    birthday: {
+        name: 'С днем рождения (Happy Birthday)',
+        tempo: 100,
+        notes: [
+            // Happy birthday to you
+            { note: 'G', octave: 3, duration: 'e' },
+            { note: 'G', octave: 3, duration: 'e' },
+            { note: 'A', octave: 3, duration: 'q' },
+            { note: 'G', octave: 3, duration: 'q' },
+            { note: 'C', octave: 4, duration: 'q' },
+            { note: 'B', octave: 3, duration: 'h' },
+            // Happy birthday to you
+            { note: 'G', octave: 3, duration: 'e' },
+            { note: 'G', octave: 3, duration: 'e' },
+            { note: 'A', octave: 3, duration: 'q' },
+            { note: 'G', octave: 3, duration: 'q' },
+            { note: 'D', octave: 4, duration: 'q' },
+            { note: 'C', octave: 4, duration: 'h' },
+            // Happy birthday dear...
+            { note: 'G', octave: 3, duration: 'e' },
+            { note: 'G', octave: 3, duration: 'e' },
+            { note: 'G', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'C', octave: 4, duration: 'q' },
+            { note: 'B', octave: 3, duration: 'q' },
+            { note: 'A', octave: 3, duration: 'q' },
+        ]
+    },
+    jingle: {
+        name: 'Колокольчики (Jingle Bells)',
+        tempo: 140,
+        notes: [
+            // Jingle bells, jingle bells
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'h' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'h' },
+            // Jingle all the way
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'G', octave: 4, duration: 'q' },
+            { note: 'C', octave: 4, duration: 'q.' },
+            { note: 'D', octave: 4, duration: 'e' },
+            { note: 'E', octave: 4, duration: 'w' },
+            // Oh what fun it is to ride
+            { note: 'F', octave: 4, duration: 'q' },
+            { note: 'F', octave: 4, duration: 'q' },
+            { note: 'F', octave: 4, duration: 'q.' },
+            { note: 'F', octave: 4, duration: 'e' },
+            { note: 'F', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'e' },
+            { note: 'E', octave: 4, duration: 'e' },
+        ]
+    },
+    ode: {
+        name: 'Ода к радости (Бетховен)',
+        tempo: 100,
+        notes: [
+            // Ode to Joy main theme
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'F', octave: 4, duration: 'q' },
+            { note: 'G', octave: 4, duration: 'q' },
+            { note: 'G', octave: 4, duration: 'q' },
+            { note: 'F', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'D', octave: 4, duration: 'q' },
+            { note: 'C', octave: 4, duration: 'q' },
+            { note: 'C', octave: 4, duration: 'q' },
+            { note: 'D', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'E', octave: 4, duration: 'q.' },
+            { note: 'D', octave: 4, duration: 'e' },
+            { note: 'D', octave: 4, duration: 'h' },
+        ]
+    },
+    fur: {
+        name: 'К Элизе (Бетховен)',
+        tempo: 80,
+        notes: [
+            // Für Elise opening
+            { note: 'E', octave: 4, duration: 's' },
+            { note: 'D#', octave: 4, duration: 's' },
+            { note: 'E', octave: 4, duration: 's' },
+            { note: 'D#', octave: 4, duration: 's' },
+            { note: 'E', octave: 4, duration: 's' },
+            { note: 'B', octave: 3, duration: 's' },
+            { note: 'D', octave: 4, duration: 's' },
+            { note: 'C', octave: 4, duration: 's' },
+            { note: 'A', octave: 3, duration: 'q' },
+            // Повтор
+            { note: 'E', octave: 4, duration: 's' },
+            { note: 'D#', octave: 4, duration: 's' },
+            { note: 'E', octave: 4, duration: 's' },
+            { note: 'D#', octave: 4, duration: 's' },
+            { note: 'E', octave: 4, duration: 's' },
+            { note: 'B', octave: 3, duration: 's' },
+            { note: 'D', octave: 4, duration: 's' },
+            { note: 'C', octave: 4, duration: 's' },
+            { note: 'A', octave: 3, duration: 'q' },
+        ]
+    },
+    mario: {
+        name: 'Марио (Super Mario Bros)',
+        tempo: 160,
+        notes: [
+            // Main Mario theme
+            { note: 'E', octave: 4, duration: 'e' },
+            { note: 'E', octave: 4, duration: 'e' },
+            { note: 'E', octave: 4, duration: 'e' },
+            { note: 'C', octave: 4, duration: 'e' },
+            { note: 'E', octave: 4, duration: 'q' },
+            { note: 'G', octave: 4, duration: 'h' },
+            { note: 'G', octave: 3, duration: 'h' },
+            // Second part
+            { note: 'C', octave: 4, duration: 'q' },
+            { note: 'G', octave: 3, duration: 'q' },
+            { note: 'E', octave: 3, duration: 'q' },
+            { note: 'A', octave: 3, duration: 'q' },
+            { note: 'B', octave: 3, duration: 'q' },
+            { note: 'A#', octave: 3, duration: 'e' },
+            { note: 'A', octave: 3, duration: 'q' },
+        ]
+    },
+    imperial: {
+        name: 'Имперский марш (Star Wars)',
+        tempo: 100,
+        notes: [
+            // Imperial March
+            { note: 'G', octave: 3, duration: 'q' },
+            { note: 'G', octave: 3, duration: 'q' },
+            { note: 'G', octave: 3, duration: 'q' },
+            { note: 'D#', octave: 3, duration: 'q.' },
+            { note: 'A#', octave: 3, duration: 'e' },
+            { note: 'G', octave: 3, duration: 'q' },
+            { note: 'D#', octave: 3, duration: 'q.' },
+            { note: 'A#', octave: 3, duration: 'e' },
+            { note: 'G', octave: 3, duration: 'h' },
+            // Second phrase
+            { note: 'D', octave: 4, duration: 'q' },
+            { note: 'D', octave: 4, duration: 'q' },
+            { note: 'D', octave: 4, duration: 'q' },
+            { note: 'D#', octave: 4, duration: 'q.' },
+            { note: 'A#', octave: 3, duration: 'e' },
+            { note: 'F#', octave: 3, duration: 'q' },
+            { note: 'D#', octave: 3, duration: 'q.' },
+            { note: 'A#', octave: 3, duration: 'e' },
+            { note: 'G', octave: 3, duration: 'h' },
+        ]
     }
 };
 
