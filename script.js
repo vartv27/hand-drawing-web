@@ -117,12 +117,17 @@ let vibratoGain = null;
 let noiseNode = null; // Генератор шума для флейты
 let isAudioPlaying = false;
 let isAudioEnabled = true; // Звук включен по умолчанию
-let currentInstrument = 'flute1'; // По умолчанию классическая флейта
+let currentInstrument = 'realpiano'; // По умолчанию реалистичное пианино
 
 // Tone.js синтезаторы
 let toneSynth = null;
 let toneVolume = null;
 let useToneJS = false; // Флаг использования Tone.js
+
+// Soundfont Player для реалистичного пианино
+let soundfontPiano = null;
+let soundfontLoading = false;
+let soundfontLoaded = false;
 
 // Инициализация аудио контекста
 function initAudio() {
@@ -136,6 +141,34 @@ function initAudio() {
     // Инициализация Tone.js
     if (!toneVolume) {
         toneVolume = new Tone.Volume(-12).toDestination();
+    }
+}
+
+// Загрузка Soundfont пианино (реалистичные семплы)
+async function loadSoundfontPiano() {
+    if (soundfontLoaded || soundfontLoading) return;
+    if (typeof Soundfont === 'undefined') {
+        console.error('Soundfont library not loaded');
+        return;
+    }
+
+    soundfontLoading = true;
+    console.log('Loading Soundfont piano...');
+
+    try {
+        if (!audioContext) initAudio();
+
+        soundfontPiano = await Soundfont.instrument(audioContext, 'acoustic_grand_piano', {
+            soundfont: 'MusyngKite',
+            gain: 0.3
+        });
+
+        soundfontLoaded = true;
+        soundfontLoading = false;
+        console.log('Soundfont piano loaded successfully!');
+    } catch (error) {
+        soundfontLoading = false;
+        console.error('Failed to load Soundfont piano:', error);
     }
 }
 
@@ -254,6 +287,24 @@ function createNoiseBuffer() {
 function startSound(frequency, volume) {
     if (!isAudioEnabled) return; // Если звук выключен, не воспроизводим
     if (!audioContext) initAudio();
+
+    // Используем Soundfont для реалистичного пианино
+    if (currentInstrument === 'realpiano') {
+        if (!soundfontLoaded && !soundfontLoading) {
+            loadSoundfontPiano();
+            return;
+        }
+        if (soundfontPiano && soundfontLoaded) {
+            const note = Tone.Frequency(frequency, "hz").toNote();
+            if (!isAudioPlaying) {
+                soundfontPiano.play(note, audioContext.currentTime, { gain: volume });
+                isAudioPlaying = true;
+            } else {
+                soundfontPiano.play(note, audioContext.currentTime, { gain: volume });
+            }
+        }
+        return;
+    }
 
     // Определяем, использовать ли Tone.js
     const toneJSInstruments = ['epiano', 'eguitar', 'bass', 'trumpet', 'saxophone', 'organ', 'vibraphone', 'marimba', 'bells'];
@@ -869,6 +920,21 @@ let isPlayingScale = false;
 
 // Функция воспроизведения одной ноты (для гаммы)
 async function playNote(frequency, duration) {
+    // Используем Soundfont для реалистичного пианино
+    if (currentInstrument === 'realpiano') {
+        if (!soundfontLoaded && !soundfontLoading) {
+            await loadSoundfontPiano();
+        }
+        if (soundfontPiano && soundfontLoaded) {
+            const note = Tone.Frequency(frequency, "hz").toNote();
+            soundfontPiano.play(note, audioContext.currentTime, {
+                duration: duration / 1000,
+                gain: 0.5
+            });
+        }
+        return;
+    }
+
     // Определяем, использовать ли Tone.js
     const toneJSInstruments = ['epiano', 'eguitar', 'bass', 'trumpet', 'saxophone', 'organ', 'vibraphone', 'marimba', 'bells'];
     const useToneJS = toneJSInstruments.includes(currentInstrument);
@@ -1344,6 +1410,10 @@ instrumentSelect.addEventListener('change', (e) => {
     // Останавливаем текущий звук при смене инструмента
     if (isAudioPlaying) {
         stopSound();
+    }
+    // Предзагружаем soundfont если выбрано реалистичное пианино
+    if (currentInstrument === 'realpiano' && !soundfontLoaded && !soundfontLoading) {
+        loadSoundfontPiano();
     }
 });
 

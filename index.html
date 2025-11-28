@@ -36,12 +36,13 @@
             <label>
                 Инструмент:
                 <select id="instrumentSelect">
+                    <option value="realpiano">🎹 Реальное пианино (Salamander)</option>
                     <option value="flute1">🎵 Флейта классическая</option>
                     <option value="flute2">🎶 Флейта с вибрато</option>
                     <option value="flute3">🌬️ Флейта воздушная</option>
                     <option value="panflute">🎐 Флейта Пана</option>
                     <option value="recorder">📯 Блокфлейта</option>
-                    <option value="piano">🎹 Пианино</option>
+                    <option value="piano">🎹 Пианино (синтез)</option>
                     <option value="epiano">🎹 Электропиано</option>
                     <option value="violin">🎻 Скрипка</option>
                     <option value="cello">🎼 Виолончель</option>
@@ -117,6 +118,9 @@
 
     <!-- Tone.js for realistic instrument samples -->
     <script src="https://cdn.jsdelivr.net/npm/tone@latest/build/Tone.min.js"></script>
+
+    <!-- Soundfont Player for realistic piano sounds -->
+    <script src="https://cdn.jsdelivr.net/npm/soundfont-player@latest/dist/soundfont-player.min.js"></script>
 
     <!-- MediaPipe Hands -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
